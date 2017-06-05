@@ -3,6 +3,7 @@
     package="io.github.juumixx.weartodo">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".MobileApplication_"
         android:allowBackup="true"

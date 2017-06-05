@@ -14,19 +14,23 @@ class Todo(val txt: String) {
 
     fun contexts() = tasks.flatMap { task -> task.contexts }.toSortedSet()
     fun projects() = tasks.flatMap { task -> task.projects }.toSortedSet()
+    fun context(name: String) = tasks.filter { task -> task.contexts.contains(name) }
+    fun contextString(name: String) = context(name).map(Task::toString).joinToString("\n")
+
+    override fun toString() = tasks.map(Task::toString).joinToString("\n")
 }
 
 data class Task(val txt: String) {
     companion object {
         private val COMPLETED = Regex("^x\\s+(.+)")
         private val PRIORITY = Regex("^\\(([A-Z])\\)\\s+(.+)")
-        private val COMPLETION_DATE = Regex("^x\\s+([0-9]{2}-[0-9]{2}-[0-9]{4})\\s+([0-9]{2}-[0-9]{2}-[0-9]{4})\\s+(.+)")
-        private val CREATION_DATE = Regex("^(\\([A-Z]\\)\\s+)?([0-9]{2}-[0-9]{2}-[0-9]{4})\\s+(.+)")
-        private val CREATION_DATE_COMPLETED = Regex("^x\\s+([0-9]{2}-[0-9]{2}-[0-9]{4})\\s+(.+)")
+        private val COMPLETION_DATE = Regex("^x\\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\\s+(.+)")
+        private val CREATION_DATE = Regex("^(\\([A-Z]\\)\\s+)?([0-9]{4}-[0-9]{2}-[0-9]{2})\\s+(.+)")
+        private val CREATION_DATE_COMPLETED = Regex("^x\\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\\s+(.+)")
         private val PROJECT = Regex("\\+(\\S+)")
         private val CONTEXT = Regex("@(\\S+)")
         private val TAG = Regex("([^\\s:]+):([^\\s:]+)")
-        val DATE_STRING = "dd-MM-yyyy"
+        val DATE_STRING = "yyyy-MM-dd"
         val DATE_FORMAT = DateTimeFormat.forPattern(DATE_STRING)!!
     }
 

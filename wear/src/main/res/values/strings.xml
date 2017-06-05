@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Wear Todo</string>
+    <string name="title_activity_wear">Wear Todo</string>
 </resources>
