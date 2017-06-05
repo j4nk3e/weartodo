@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'kotlin'
 
 buildscript {
+    ext.jodatime_version = '2.9.9'
     repositories {
         jcenter()
     }
@@ -15,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile group: 'joda-time', name: 'joda-time', version: jodatime_version
     testCompile 'org.amshove.kluent:kluent:1.22'
 }

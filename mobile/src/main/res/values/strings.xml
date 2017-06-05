@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Wear Todo</string>
+    <string name="title_activity_main">Wear Todo</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="login">Login to Dropbox</string>
+    <string name="logout">Logout</string>
+    <string name="app_key" translatable="false">5l5los3s8guau0x</string>
+    <string name="dropbox_token">dropbox_token</string>
 </resources>
