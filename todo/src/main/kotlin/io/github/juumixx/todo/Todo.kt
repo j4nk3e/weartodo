@@ -10,7 +10,10 @@ class Todo(val txt: String) {
         tasks.addAll(read())
     }
 
-    fun read(): MutableList<Task> = txt.split("\n").filter(String::isNotBlank).map { Task(it) }.toMutableList()
+    fun read() = txt.split("\n").filter(String::isNotBlank).map { Task(it) }.toMutableList()
+
+    fun contexts() = tasks.flatMap { task -> task.contexts }.toSortedSet()
+    fun projects() = tasks.flatMap { task -> task.projects }.toSortedSet()
 }
 
 data class Task(val txt: String) {

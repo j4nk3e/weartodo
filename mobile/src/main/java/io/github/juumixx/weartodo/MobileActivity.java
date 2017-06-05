@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.widget.TextView;
 
 import com.dropbox.core.v2.users.FullAccount;
@@ -84,11 +85,11 @@ public class MobileActivity extends AppCompatActivity
         if (account != null) {
             headerName.setText(account.getName().getDisplayName());
             headerEmail.setText(account.getEmail());
-            navigationView.getMenu().getItem(4).getSubMenu().getItem(1).setTitle(R.string.logout);
+            navigationView.getMenu().getItem(1).getSubMenu().getItem(1).setTitle(R.string.logout);
         } else {
             headerName.setText(R.string.app_name);
             headerEmail.setText("");
-            navigationView.getMenu().getItem(4).getSubMenu().getItem(1).setTitle(R.string.login);
+            navigationView.getMenu().getItem(1).getSubMenu().getItem(1).setTitle(R.string.login);
         }
         dropboxController.getFiles();
     }
@@ -110,8 +111,14 @@ public class MobileActivity extends AppCompatActivity
         return true;
     }
 
+    @UiThread
     public void updateFile(String txt) {
         Todo todo = new Todo(txt);
+        SubMenu subMenu = navigationView.getMenu().getItem(0).getSubMenu();
+        subMenu.clear();
+        for (String context : todo.contexts()) {
+            subMenu.add(context);
+        }
         for (Task task : todo.getTasks()) {
             System.out.println(task.getContent());
         }
