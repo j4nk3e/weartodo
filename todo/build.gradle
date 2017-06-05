@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile group: 'joda-time', name: 'joda-time', version: '2.9.9'
+    testCompile 'org.amshove.kluent:kluent:1.22'
+}
