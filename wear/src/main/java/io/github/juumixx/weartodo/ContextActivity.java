@@ -111,6 +111,12 @@ public class ContextActivity extends Activity implements GoogleApiClient.OnConne
             super(itemView);
             textView = (TextView) itemView.findViewById(android.R.id.text1);
             textView.setTextColor(Color.BLACK);
+            textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
         }
 
         void bind(Task task) {

@@ -29,6 +29,8 @@ dependencies {
     wearApp project(':wear')
     annotationProcessor "org.androidannotations:androidannotations:$aa_version"
 
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
     compile "org.androidannotations:androidannotations-api:$aa_version"
     compile 'com.google.android.gms:play-services-wearable:10.2.6'
     compile "net.danlew:android.joda:$jodatime_version"

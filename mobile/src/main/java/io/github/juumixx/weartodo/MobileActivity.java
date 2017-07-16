@@ -1,10 +1,14 @@
 package io.github.juumixx.weartodo;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -22,11 +26,17 @@ import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import io.github.juumixx.todo.Todo;
 
@@ -34,6 +44,7 @@ import io.github.juumixx.todo.Todo;
 public class MobileActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MobileActivity.class.getSimpleName();
+    private static final int PERMISSIONS_REQUEST_STORAGE = 1;
 
     @ViewById
     Toolbar toolbar;
@@ -49,6 +60,7 @@ public class MobileActivity extends AppCompatActivity
 
     @Bean
     DropboxController dropboxController;
+
 
     private GoogleApiClient googleApiClient;
 
@@ -88,6 +100,43 @@ public class MobileActivity extends AppCompatActivity
                     }
                 })
                 .build();
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            initFiles();
+        } else {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST_STORAGE);
+        }
+    }
+
+    @AfterViews
+    @Background
+    void initFiles() {
+        try {
+            File todoFile = new File(Environment.getExternalStorageDirectory() + "/Sync/todo/todo.txt");
+            BufferedReader reader = new BufferedReader(new FileReader(todoFile));
+            String line;
+            Todo todo = new Todo();
+            while ((line = reader.readLine()) != null) {
+                todo.readLine(line);
+            }
+            updateTodo(todo);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_STORAGE) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (permissions[i].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE) && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    initFiles();
+                }
+            }
+        }
     }
 
     @Override
@@ -142,9 +191,13 @@ public class MobileActivity extends AppCompatActivity
         return true;
     }
 
-    @UiThread
     public void updateFile(String txt) {
         Todo todo = new Todo(txt);
+        updateTodo(todo);
+    }
+
+    @UiThread
+    void updateTodo(Todo todo) {
         SubMenu subMenu = navigationView.getMenu().getItem(0).getSubMenu();
         subMenu.clear();
         for (String context : todo.contexts()) {

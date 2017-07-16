@@ -3,14 +3,22 @@ package io.github.juumixx.todo
 import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 
-class Todo(val txt: String) {
+class Todo(txt: String? = null) {
     val tasks = ArrayList<Task>()
 
     init {
-        tasks.addAll(read())
+        txt?.let {
+            tasks.addAll(read(it))
+        }
     }
 
-    fun read() = txt.split("\n").filter(String::isNotBlank).map { Task(it) }.toMutableList()
+    fun readLine(line: String) {
+        if (line.isNotBlank()) {
+            tasks.add(Task(line))
+        }
+    }
+
+    fun read(txt: String) = txt.split("\n").filter(String::isNotBlank).map { Task(it) }.toMutableList()
 
     fun contexts() = tasks.flatMap { task -> task.contexts }.toSortedSet()
     fun projects() = tasks.flatMap { task -> task.projects }.toSortedSet()
