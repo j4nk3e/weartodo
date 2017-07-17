@@ -2,6 +2,7 @@ package io.github.juumixx.weartodo;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -13,10 +14,16 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dropbox.core.v2.users.FullAccount;
@@ -30,6 +37,8 @@ import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
@@ -37,7 +46,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import io.github.juumixx.todo.Task;
 import io.github.juumixx.todo.Todo;
 
 @EActivity(R.layout.activity_main)
@@ -55,12 +66,17 @@ public class MobileActivity extends AppCompatActivity
     @ViewById
     DrawerLayout drawerLayout;
 
+    @ViewById
+    RecyclerView recycler;
+
     TextView headerName;
     TextView headerEmail;
 
     @Bean
     DropboxController dropboxController;
 
+    @Bean
+    TodoAdapter adapter;
 
     private GoogleApiClient googleApiClient;
 
@@ -100,6 +116,8 @@ public class MobileActivity extends AppCompatActivity
                     }
                 })
                 .build();
+
+        recycler.setAdapter(adapter);
 
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -198,6 +216,10 @@ public class MobileActivity extends AppCompatActivity
 
     @UiThread
     void updateTodo(Todo todo) {
+        adapter.items.clear();
+        adapter.items.addAll(todo.getTasks());
+        adapter.notifyDataSetChanged();
+
         SubMenu subMenu = navigationView.getMenu().getItem(0).getSubMenu();
         subMenu.clear();
         for (String context : todo.contexts()) {
@@ -205,5 +227,52 @@ public class MobileActivity extends AppCompatActivity
         }
         PutDataRequest req = PutDataRequest.create("/tasks").setUrgent().setData(todo.toString().getBytes());
         Wearable.DataApi.putDataItem(googleApiClient, req);
+    }
+
+    @EBean
+    static class TodoAdapter extends RecyclerView.Adapter<TodoViewHolder> {
+        @SystemService
+        LayoutInflater layoutInflater;
+
+        private ArrayList<Task> items;
+
+        TodoAdapter() {
+            super();
+            items = new ArrayList<>();
+        }
+
+        @Override
+        public TodoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = layoutInflater.inflate(R.layout.item_todo, parent, false);
+            return new TodoViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(TodoViewHolder holder, int position) {
+            holder.bind(items.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+    }
+
+    static class TodoViewHolder extends RecyclerView.ViewHolder {
+        private final TextView textView;
+
+        TodoViewHolder(View itemView) {
+            super(itemView);
+            textView = (TextView) itemView.findViewById(R.id.text);
+        }
+
+        void bind(Task task) {
+            if (task.getCompleted()) {
+                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+            textView.setText(task.getTxt());
+        }
     }
 }
